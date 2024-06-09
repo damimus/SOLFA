@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAMIMUS</title>
+    <style>
+        :root {
+            --main-bg-color: #f0f0f0;
+            --border-color: #ccc;
+            --hover-bg-color: #d3d3d3;
+            --active-bg-color: #a9a9a9;
+            --button-bg-color: lightblue;
+            --button-active-bg-color: #90ee90;
+            --button-inactive-bg-color: lightgrey;
+        }
+        body {
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        #mainContainer {
+            display: flex;
+            width: 100%;
+        }
+        #primaryZone {
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            border-right: 2px solid var(--border-color);
+            position: relative;
+        }
+        #secondaryZone {
+            width: 20%;
+            display: flex;
+            flex-direction: column;
+        }
+        .section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+            border-bottom: 1px solid #000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .section:last-child {
+            border-bottom: none;
+        }
+        .section-1,
+        .section-2,
+        .section-3,
+        .section-4 {
+            background-color: var(--main-bg-color);
+        }
+        #score, #timer {
+            font-size: 2vw;
+            margin-bottom: 10px;
+        }
+        #randomImage {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        #optionsContainer {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        #optionsContainer img {
+            width: 120px;
+            height: 120px;
+            cursor: pointer;
+            border: 2px solid black;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        #optionsContainer img:hover {
+            background-color: var(--hover-bg-color);
+        }
+        #optionsContainer img:active {
+            background-color: var(--active-bg-color);
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.5vw;
+        }
+        #scoreImage, #resultImage {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+        }
+        #toggleSound, #toggleImageSound, #startButton {
+            margin-top: 10px;
+            font-size: 1.5vw;
+            cursor: pointer;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            background-color: var(--button-inactive-bg-color);
+        }
+        #toggleSound.active, #toggleImageSound.active {
+            background-color: var(--button-active-bg-color);
+        }
+        #startButton {
+            background-color: var(--button-bg-color);
+        }
+        #noteSelection {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        #noteSelection label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 1vw;
+            margin: 20px;
+        }
+        #noteSelection input[type="checkbox"] {
+            transform: scale(3);
+            margin-bottom: 20px;
+        }
+        .hidden {
+            display: none !important;
+        }
+        #toggleShuffle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            cursor: pointer;
+        }
+        .score-timer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        @media (max-width: 600px) {
+            #score, #timer {
+                font-size: 5vw;
+            }
+            #optionsContainer img {
+                font-size: 3vw;
+                padding: 10px;
+                width: 60px;
+                height: 180px;
+            }
+            #toggleSound, #toggleImageSound, #startButton {
+                font-size: 3vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="mainContainer">
+        <div id="primaryZone">
+            <img id="toggleShuffle" src="buttonfa1.png" alt="Shuffle Button">
+            <img id="randomImage" alt="Random Music Note" src="start1.png">
+            <div id="optionsContainer"></div>
+            <div id="noteSelection">
+                <label><input type="checkbox" class="note-checkbox" data-note="DO" checked> DO</label>
+                <label><input type="checkbox" class="note-checkbox" data-note="RE" checked> RE</label>
+                <label><input type="checkbox" class="note-checkbox" data-note="MI" checked> MI</label>
+                <label><input type="checkbox" class="note-checkbox" data-note="FA" checked> FA</label>
+                <label><input type="checkbox" class="note-checkbox" data-note="SOL" checked> SOL</label>
+                <label><input type="checkbox" class="note-checkbox" data-note="LA" checked> LA</label>
+                <label><input type="checkbox" class="note-checkbox" data-note="SI" checked> SI</label>
+                <label><input type="checkbox" class="note-checkbox" data-note="DO'" checked> DO'</label>
+            </div>
+            <div id="result"></div>
+        </div>
+        <div id="secondaryZone">
+            <div class="section section-1 score-timer-container">
+                <div id="score">Punts: 0</div>
+                <div id="timer">Temps: 60</div>
+            </div>
+            <div class="section section-2">
+                <img id="scoreImage" alt="BATERIA" src="image0.png">
+            </div>
+            <div class="section section-3">
+                <img id="resultImage" alt="BE/MAL" src="ditbe.png">
+            </div>
+            <div class="section section-4">
+                <button id="toggleSound" class="active">Error ON</button>
+                <button id="toggleImageSound" class="active">Notes ON</button>
+                <button id="startButton" onclick="return validarSeleccion()">Iniciar Joc</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioDo" src="do.mp3"></audio>
+    <audio id="audioRe" src="re.mp3"></audio>
+    <audio id="audioMi" src="mi.mp3"></audio>
+    <audio id="audioFa" src="fa.mp3"></audio>
+    <audio id="audioSol" src="sol.mp3"></audio>
+    <audio id="audioLa" src="la.mp3"></audio>
+    <audio id="audioSi" src="si.mp3"></audio>
+    <audio id="audioDo8" src="do8.mp3"></audio>
+    <audio id="audioCorrecto" src="correcto.mp3"></audio>
+    <audio id="audioIncorrecto" src="incorrecto.mp3"></audio>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const questionImages = [
+                { src: '1notado.png', name: 'DO', audio: 'audioDo' },
+                { src: '1notare.png', name: 'RE', audio: 'audioRe' },
+                { src: '1notami.png', name: 'MI', audio: 'audioMi' },
+                { src: '1notafa.png', name: 'FA', audio: 'audioFa' },
+                { src: '1notasol.png', name: 'SOL', audio: 'audioSol' },
+                { src: '1notala.png', name: 'LA', audio: 'audioLa' },
+                { src: '1notasi.png', name: 'SI', audio: 'audioSi' },
+                { src: '1notado8.png', name: "DO'", audio: 'audioDo8' },
+            ];
+
+            const answerImages = [
+                { src: 'notado.png', name: 'DO', audio: 'audioDo' },
+                { src: 'notare.png', name: 'RE', audio: 'audioRe' },
+                { src: 'notami.png', name: 'MI', audio: 'audioMi' },
+                { src: 'notafa.png', name: 'FA', audio: 'audioFa' },
+                { src: 'notasol.png', name: 'SOL', audio: 'audioSol' },
+                { src: 'notala.png', name: 'LA', audio: 'audioLa' },
+                { src: 'notasi.png', name: 'SI', audio: 'audioSi' },
+                { src: 'notado8.png', name: "DO'", audio: 'audioDo8' },
+            ];
+            const resultImages = {
+            correct: 'ditbe.png',
+            incorrect: 'ditmal.png',
+        };
+
+        const scoreImages = {
+            veryLow: 'image0.png',
+            low: 'image1.png',
+            mediumLow: 'image2.png',
+            medium: 'image3.png',
+            mediumHigh: 'image4.png',
+            high: 'image5.png',
+            veryHigh: 'image6.png',
+        };
+
+        let score = 0;
+        let timeLeft = 60;
+        let timerInterval;
+        let soundEnabled = true;
+        let imageSoundEnabled = true;
+        let shuffleEnabled = true;
+
+        const scoreContainer = document.getElementById('score');
+        const timerContainer = document.getElementById('timer');
+        const imageContainer = document.getElementById('randomImage');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const resultContainer = document.getElementById('result');
+        const resultImageContainer = document.getElementById('resultImage');
+        const scoreImageContainer = document.getElementById('scoreImage');
+        const toggleSoundButton = document.getElementById('toggleSound');
+        const toggleImageSoundButton = document.getElementById('toggleImageSound');
+        const startButton = document.getElementById('startButton');
+        const noteCheckboxes = document.querySelectorAll('.note-checkbox');
+        const noteSelectionContainer = document.getElementById('noteSelection');
+        const toggleShuffleButton = document.getElementById('toggleShuffle');
+
+        function disableNoteSelection() {
+            noteCheckboxes.forEach(checkbox => {
+                checkbox.disabled = true;
+            });
+            noteSelectionContainer.classList.add('hidden');
+        }
+
+        function enableNoteSelection() {
+            noteCheckboxes.forEach(checkbox => {
+                checkbox.disabled = false;
+            });
+            noteSelectionContainer.classList.remove('hidden');
+        }
+
+        function validarSeleccion() {
+                const selectedNotes = document.querySelectorAll('.note-checkbox:checked');
+                if (selectedNotes.length < 2) {
+                    alert("Por favor selecciona al menos dos notas.");
+                    return false;
+                }
+                return true;
+            }
+
+        function toggleShuffle() {
+            shuffleEnabled = !shuffleEnabled;
+            toggleShuffleButton.src = shuffleEnabled ? 'buttonfa1.png' : 'buttonfa0.png';
+        }
+        toggleShuffleButton.addEventListener('click', toggleShuffle);
+
+        toggleSoundButton.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            toggleSoundButton.classList.toggle('active', soundEnabled);
+            toggleSoundButton.textContent = `Error ${soundEnabled ? 'ON' : 'OFF'}`;
+        });
+
+        toggleImageSoundButton.addEventListener('click', () => {
+            imageSoundEnabled = !imageSoundEnabled;
+            toggleImageSoundButton.classList.toggle('active', imageSoundEnabled);
+            toggleImageSoundButton.textContent = `Notes ${imageSoundEnabled ? 'ON' : 'OFF'}`;
+        });
+
+        startButton.addEventListener('click', () => {
+                if (getSelectedNotes().length === 0) {
+                    alert('Tria almenys dos notes per començar el joc.');
+                    return;
+                }
+                startButton.disabled = true;
+                disableNoteSelection();
+                startGame();
+            });
+
+        function startGame() {
+            score = 0;
+            timeLeft = 60;
+            updateScore();
+            updateTimer();
+            showNewQuestion();
+
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimer();
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function updateScore() {
+            scoreContainer.textContent = `Punts: ${score}`;
+            updateScoreImage();
+        }
+
+        function updateScoreImage() {
+            let imgSrc = '';
+            if (score < 0) {
+                imgSrc = scoreImages.veryLow;
+            } else if (score < 25) {
+                imgSrc = scoreImages.low;
+            } else if (score >= 25 && score < 40) {
+                imgSrc = scoreImages.mediumLow;
+            } else if (score >= 40 && score < 60) {
+                imgSrc = scoreImages.medium;
+            } else if (score >= 60 && score < 80) {
+                imgSrc = scoreImages.mediumHigh;
+            } else if (score >= 80 && score < 100) {
+                imgSrc = scoreImages.high;
+            } else if (score >= 100) {
+                imgSrc = scoreImages.veryHigh;
+            }
+            scoreImageContainer.src = imgSrc;
+        }
+
+        function updateTimer() {
+            timerContainer.textContent = `Temps: ${timeLeft}`;
+        }
+
+        function playAudio(audioId) {
+            const audioElement = document.getElementById(audioId);
+            if (audioElement) {
+                audioElement.play().catch(error => {
+                    console.error("Audio playback failed:", error);
+                });
+            }
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function showNewQuestion() {
+            const selectedNotes = getSelectedNotes();
+            const filteredQuestionImages = questionImages.filter(image => selectedNotes.includes(image.name));
+            const filteredAnswerImages = answerImages.filter(image => selectedNotes.includes(image.name));
+            const randomIndex = Math.floor(Math.random() * filteredQuestionImages.length);
+            const randomQuestionImage = filteredQuestionImages[randomIndex];
+            imageContainer.src = randomQuestionImage.src;
+            if (imageSoundEnabled) {
+                playAudio(randomQuestionImage.audio);
+            }
+
+            optionsContainer.innerHTML = '';
+            const answerArray = shuffleEnabled ? shuffleArray(filteredAnswerImages) : filteredAnswerImages;
+            answerArray.forEach(image => { 
+                const imgElement = document.createElement('img');
+                imgElement.src = image.src;
+                imgElement.alt = image.name;
+                imgElement.addEventListener('click', () => handleAnswer(image.name, randomQuestionImage.name));
+                optionsContainer.appendChild(imgElement);
+            });
+        }
+
+        function handleAnswer(selected, correct) {
+            if (selected === correct) {
+                score += 3;
+                resultContainer.textContent = '';
+                resultImageContainer.src = resultImages.correct;
+                playAudio('audioCorrecto');
+            } else {
+                score -= 2;
+                resultContainer.textContent = '';
+                resultImageContainer.src = resultImages.incorrect;
+                if (soundEnabled) {
+                    playAudio('audioIncorrecto');
+                }
+            }
+            updateScore();
+            showNewQuestion();
+        }
+
+        function getSelectedNotes() {
+            const checkboxes = document.querySelectorAll('.note-checkbox:checked');
+            return Array.from(checkboxes).map(checkbox => checkbox.dataset.note);
+        }
+
+        function endGame() {
+            imageContainer.src = 'end.png';
+            resultContainer.textContent = `El nivell de bateria aconseguit és el: ${score} %`;
+            optionsContainer.innerHTML = '';
+            startButton.disabled = false;
+            toggleShuffleButton.disabled = false;
+            enableNoteSelection(); 
+        }
+    });
+</script>
+</body>
+</html

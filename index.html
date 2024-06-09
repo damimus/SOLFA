@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intro del Juego</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('planetac.png');
+            background-size: contain; /* Mantiene la proporción de la imagen */
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 1;
+            animation: flicker 2s ease-in-out infinite alternate, grayscale 5s linear forwards;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes grayscale {
+            0% { filter: grayscale(0%); }
+            100% { filter: grayscale(100%); }
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .overlay img {
+            width: 150px;
+            height: 150px;
+            margin: 0 20px;
+            cursor: pointer;
+            transition: transform 0.3s, width 0.3s, height 0.3s; /* Agregamos la transición para el cambio de tamaño */
+            position: absolute;
+            animation-duration: 1.5s;
+            animation-timing-function: ease-in-out;
+            animation-fill-mode: forwards; /* Mantiene la última posición de la animación */
+        }
+
+        .overlay img:hover {
+            transform: scale(1.2); /* Aumentamos el tamaño al pasar el ratón */
+            width: 180px; /* Ajustamos el ancho */
+            height: 180px; /* Ajustamos la altura */
+        }
+
+        .overlay img:active {
+            transform: scale(1);
+        }
+
+        @keyframes slideFromRight {
+            from {
+                transform: translateX(400%);
+            }
+            to {
+                transform: translateX(60%);
+            }
+        }
+
+        @keyframes slideFromTop {
+            from {
+                transform: translateY(-400%);
+            }
+            to {
+                transform: translateY(-200%);
+            }
+        }
+
+        @keyframes slideFromBottomRight {
+            from {
+                transform: translate(200%, 200%);
+            }
+            to {
+                transform: translate(-180%, -50%);
+            }
+        }
+
+        .sol {
+            animation-name: slideFromRight;
+        }
+
+        .fa {
+            animation-name: slideFromTop;
+        }
+
+        .si {
+            animation-name: slideFromBottomRight;
+        }
+
+        /* Al finalizar la animación de las imágenes, aplicamos el filtro */
+        .sol.finished,
+        .fa.finished,
+        .si.finished {
+            animation-fill-mode: forwards;
+        }
+
+        .sol.finished ~ .background,
+        .fa.finished ~ .background,
+        .si.finished ~ .background {
+            transition-delay: 1.5s; /* Retraso para sincronizar con la animación de las imágenes */
+            filter: grayscale(100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <div class="overlay">
+        <a href="indexsol.html">
+            <img class="sol" src="sol.png" alt="Sol">
+        </a>
+        <a href="indexfa.html">
+            <img class="fa" src="fa.png" alt="Fa">
+        </a>
+        <a href="indexsi.html">
+            <img class="si" src="si.png" alt="Si">
+        </a>
+    </div>
+    <script>
+        document.querySelectorAll('.sol, .fa, .si').forEach(item => {
+            item.addEventListener('animationend', () => {
+                item.classList.add('finished');
+            });
+        });
+
+        document.querySelectorAll('.overlay img').forEach(item => {
+            item.addEventListener('mouseover', () => {
+                item.style.transform = 'scale(1.2)';
+                item.style.width = '180px';
+                item.style.height = '180px';
+            });
+            item.addEventListener('mouseleave', () => {
+                item.style.transform = 'scale(1)';
+                item.style.width = '150px';
+                item.style.height = '150px';
+            });
+        });
+    </script>
+</body>
+</html>

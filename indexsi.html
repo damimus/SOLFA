@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simón dice</title>
+    <style>
+        body {
+            display: grid;
+            grid-template-columns: 20% 80%;
+            width: 100%;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Merriweather', serif;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #f0f0f0;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .game-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #startButton {
+            width: 100px;
+            border: none;
+            font-family: 'arial', serif;
+            cursor: pointer;
+            border-radius: 5px;
+            color: #fff;
+            background-color: #587792;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        #startButton:disabled {
+            background-color: #eee;
+        }
+
+        #round,
+        #score {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .image-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .simon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+        }
+
+        .buttonContainer {
+            display: grid;
+            grid-gap: 10px;
+            grid-template-columns: repeat(3, 200px);
+            transform: rotate(0deg);
+        }
+
+        .square {
+            border-radius: 5px;
+            width: 200px;
+            height: 200px;
+            cursor: pointer;
+            background-size: cover;
+            border: 3px solid black; /* Border added */
+        }
+
+        .square:active,
+        .active {
+            filter: brightness(200%);
+        }
+
+        .notado {
+            background-color: #FFC0CB; /* Pink */
+            background-image: url('notado.png');
+        }
+
+        .notare {
+            background-color: #FFD700; /* Gold */
+            background-image: url('notare.png');
+        }
+
+        .notami {
+            background-color: #ADFF2F; /* GreenYellow */
+            background-image: url('notami.png');
+        }
+
+        .notafa {
+            background-color: #00FFFF; /* Aqua */
+            background-image: url('notafa.png');
+        }
+
+        .notasol {
+            background-color: #FF4500; /* OrangeRed */
+            background-image: url('notasol.png');
+        }
+
+        .notala {
+            background-color: #9400D3; /* DarkViolet */
+            background-image: url('notala.png');
+        }
+
+        .notasi {
+            background-color: #1E90FF; /* DodgerBlue */
+            background-image: url('notasi.png');
+        }
+
+        .notado8 {
+            background-color: #FFFFE0; /* LightYellow */
+            background-image: url('notado8.png');
+        }
+
+        .center-button {
+            border-radius: opx;
+            width: 200px;
+            height: 200px;
+            cursor: default;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-image: url('si.png');
+            border: 0px solid black;
+        }
+
+        .winner {
+            animation: spin 1s ease-in-out;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(180deg) }
+        }
+
+        /* Estilo para el contenedor de las imágenes de resultado */
+        .result-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            text-align: center;
+        }
+
+        .result-container img {
+            max-width: 100px; /* Ajusta el tamaño según sea necesario */
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <div class="game-title">Simon Diu</div>
+            <button id="startButton">Start</button>
+            <div id="round">Acerts: 0</div>
+            <div id="score">Bateria: 0</div>
+        </div>
+        <div class="image-container">
+            <img id="scoreImage" src="image0.png" alt="Score Image">
+        </div>
+        <div class="result-container">
+            <img id="resultImage" src="ditbe.png" alt="Result Image">
+        </div>
+    </div>
+    <div class="simon">
+        <div class="buttonContainer">
+            <div class="square notado"></div>
+            <div class="square notare"></div>
+            <div class="square notami"></div>
+            <div class="square notafa"></div>
+            <div class="center-button"></div> <!-- Botón central -->
+            <div class="square notasol"></div>
+            <div class="square notala"></div>
+            <div class="square notasi"></div>
+            <div class="square notado8"></div>
+        </div>
+    </div>
+    <script>
+        const round = document.getElementById('round');
+        const scoreDisplay = document.getElementById('score');
+        const scoreImage = document.getElementById('scoreImage');
+        const resultImage = document.getElementById('resultImage');
+        const simonButtons = document.getElementsByClassName('square');
+        const startButton = document.getElementById('startButton');
+
+        class Simon {
+            constructor(simonButtons, startButton, round, scoreDisplay, scoreImage, resultImage) {
+                this.round = 0;
+                this.score = 0;
+                this.userPosition = 0;
+                this.totalRounds = 10;
+                this.sequence = [];
+                this.speed = 1000;
+                this.blockedButtons = true;
+                this.buttons = Array.from(simonButtons);
+                this.display = {
+                    startButton,
+                    round,
+                    scoreDisplay,
+                    scoreImage,
+                    resultImage
+                }
+                this.errorSound = new Audio('incorrecto.mp3');
+                this.buttonSounds = [
+                    new Audio('do.mp3'),
+                    new Audio('re.mp3'),
+                    new Audio('mi.mp3'),
+                    new Audio('fa.mp3'),
+                    new Audio('sol.mp3'),
+                    new Audio('la.mp3'),
+                    new Audio('si.mp3'),
+                    new Audio('do8.mp3')
+                ]
+            }
+
+            // Inicia el Simon
+            init() {
+                this.display.startButton.onclick = () => this.startGame();
+            }
+
+            // Comienza el juego
+            startGame() {
+                this.display.startButton.disabled = true;
+                this.updateRound(0);
+                this.updateScore(0);
+                this.updateScoreImage(0); // Actualiza la imagen al iniciar
+                this.display.resultImage.src = ''; // Limpia la imagen de resultado
+                this.userPosition = 0;
+                this.sequence = this.createSequence();
+                this.buttons.forEach((element, i) => {
+                    element.classList.remove('winner');
+                    element.onclick = () => this.buttonClick(i);
+                });
+                this.showSequence();
+            }
+
+            // Actualiza la ronda y el tablero
+            updateRound(value) {
+                this.round = value;
+                this.display.round.textContent = `Acerts ${this.round}`;
+            }
+
+            // Actualiza la puntuación
+            updateScore(value) {
+                this.score = value;
+                this.display.scoreDisplay.textContent = `Bateria: ${this.score} %`;
+                this.updateScoreImage(this.score); // Actualiza la imagen según la puntuación
+            }
+
+            // Actualiza la imagen según la puntuación
+            updateScoreImage(score) {
+                let imgSrc = 'image0.png';
+                if (score >= 0 && score < 20) imgSrc = 'image1.png';
+                else if (score >= 20 && score < 40) imgSrc = 'image2.png';
+                else if (score >= 40 && score < 60) imgSrc = 'image3.png';
+                else if (score >= 60 && score < 80) imgSrc = 'image4.png';
+                else if (score >= 80 && score < 100) imgSrc = 'image5.png';
+                else if (score >= 100) imgSrc = 'image6.png';
+                this.display.scoreImage.src = imgSrc;
+            }
+
+            // Crea el array aleatorio de botones
+            createSequence() {
+                return Array.from({ length: this.totalRounds }, () => this.getRandomColor());
+            }
+            // Crea el array aleatorio de botones
+createSequence() {
+    let sequence = [];
+    let lastColor = -1; // Inicializa el último color como -1 para asegurar que el primer color no se repita
+    for (let i = 0; i < this.totalRounds; i++) {
+        let randomColor;
+        do {
+            randomColor = this.getRandomColor();
+        } while (randomColor === lastColor); // Mientras el color aleatorio sea igual al último color, se genera otro color
+        sequence.push(randomColor);
+        lastColor = randomColor;
+    }
+    return sequence;
+}
+            // Devuelve un número al azar entre 0 y 7
+            getRandomColor() {
+                return Math.floor(Math.random() * 8);
+            }
+
+            // Ejecuta una función cuando se hace click en un botón
+            buttonClick(value) {
+                !this.blockedButtons && this.validateChosenColor(value);
+            }
+
+            // Valida si el boton que toca el usuario corresponde a al valor de la secuencia
+            validateChosenColor(value) {
+                if (this.sequence[this.userPosition] === value) {
+                    this.buttonSounds[value].play();
+                    this.display.resultImage.src = 'ditbe.png'; // Muestra imagen correcta
+                    if (this.round === this.userPosition) {
+                        this.updateRound(this.round + 1);
+                        this.updateScore(this.score + 10); // Incrementa la puntuación
+                        this.speed /= 1.02;
+                        this.isGameOver();
+                    } else {
+                        this.userPosition++;
+                    }
+                } else {
+                    this.display.resultImage.src = 'ditmal.png'; // Muestra imagen incorrecta
+                    this.gameLost();
+                }
+            }
+
+            // Verifica que no haya acabado el juego
+            isGameOver() {
+                if (this.round === this.totalRounds) {
+                    this.gameWon();
+                } else {
+                    this.userPosition = 0;
+                    this.showSequence();
+                };
+            }
+
+            // Muestra la secuencia de botones que va a tener que tocar el usuario
+            showSequence() {
+                this.blockedButtons = true;
+                let sequenceIndex = 0;
+                let timer = setInterval(() => {
+                    const button = this.buttons[this.sequence[sequenceIndex]];
+                    this.buttonSounds[this.sequence[sequenceIndex]].play();
+                    this.toggleButtonStyle(button)
+                    setTimeout(() => this.toggleButtonStyle(button), this.speed / 2)
+                    sequenceIndex++;
+                    if (sequenceIndex > this.round) {
+                        this.blockedButtons = false;
+                        clearInterval(timer);
+                    }
+                }, this.speed);
+            }
+
+            // Pinta los botones para cuando se está mostrando la secuencia
+            toggleButtonStyle(button) {
+                button.classList.toggle('active');
+            }
+
+            // Actualiza el simon cuando el jugador pierde
+            gameLost() {
+                this.errorSound.play();
+                this.display.startButton.disabled = false;
+                this.blockedButtons = true;
+            }
+
+            // Muestra la animacón de triunfo y actualiza el simon cuando el jugador gana
+            gameWon() {
+                this.display.startButton.disabled = false;
+                this.blockedButtons = true;
+                this.buttons.forEach(element => {
+                    element.classList.add('winner');
+                });
+                this.updateRound('🏆');
+            }
+        }
+
+        const simon = new Simon(simonButtons, startButton, round, scoreDisplay, scoreImage, resultImage);
+        simon.init();
+    </script>
+</body>
+</html>

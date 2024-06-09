@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAMIMUS</title>
+    <style>
+        /* Define estilos */
+        body {
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        #mainContainer {
+            display: flex;
+            width: 100%;
+        }
+        #primaryZone {
+            width: 75%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            border-right: 2px solid #ccc;
+        }
+        #secondaryZone {
+            width: 25%;
+            display: flex;
+            flex-direction: column;
+        }
+        .section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+            border-bottom: 1px solid #000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .section:last-child {
+            border-bottom: none;
+        }
+        .section-1 {
+            display: flex;
+            flex-direction: column;
+            background-color: #f0f0f0;
+        }
+        .section-2, .section-3, .section-4 {
+            background-color: #f0f0f0;
+        }
+        #score, #timer {
+            font-size: 2vw;
+            margin-bottom: 10px;
+        }
+        #randomImage {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        #optionsContainer {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        #optionsContainer button {
+            font-size: 1.5vw;
+            font-weight: bold;
+            color: darkred;
+            padding: 20px;
+            margin: 0;
+            flex: 0 0 auto;
+            width: 80px;
+            height: 200px;
+            border: 2px solid black;
+            background-color: white;
+            text-align: center;
+            vertical-align: middle;
+            display: inline-block;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        #optionsContainer button:hover {
+            background-color: #d3d3d3;
+        }
+        #optionsContainer button:active {
+            background-color: #a9a9a9;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.5vw;
+        }
+        #scoreImage, #resultImage {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+        }
+        #toggleSound, #toggleImageSound, #startButton {
+            margin-top: 10px;
+            font-size: 1.5vw;
+            cursor: pointer;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        #toggleSound, #toggleImageSound {
+            background-color: lightgrey;
+        }
+        #toggleSound.active, #toggleImageSound.active {
+            background-color: #90ee90;
+        }
+        #startButton {
+            background-color: lightblue;
+        }
+        #noteSelection {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        #noteSelection label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 1vw;
+            margin: 20px; /* Increased margin for more space */
+        }
+        #noteSelection input[type="checkbox"] {
+            transform: scale(3); /* Aumentar el tamaño de las checkbox */
+            margin-bottom: 20px; /* Increased margin for more space between checkbox and text */
+        }
+        #noteSelection.hidden {
+            display: none;
+        }
+        @media (max-width: 600px) {
+            #score, #timer {
+                font-size: 5vw;
+            }
+            #optionsContainer button {
+                font-size: 3vw;
+                padding: 10px;
+                width: 60px;
+                height: 180px;
+            }
+            #toggleSound, #toggleImageSound, #startButton {
+                font-size: 3vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="mainContainer">
+        <div id="primaryZone">
+            <img id="randomImage" alt="Random Music Note" src="start.png">
+            <div id="optionsContainer"></div>
+            <div id="noteSelection" class="hidden">
+                <label><input type="checkbox" class="note-checkbox" data-note="DO" checked> DO</label>
+                <label><input type="checkbox" class="note-checkbox" data-note="RE" checked> RE</label>
+                <label><input type="checkbox" class="note-checkbox" data-note="MI" checked> MI</label>
+                <label><input type="checkbox" class="note-checkbox" data-note="FA" checked> FA</label>
+                <label><input type="checkbox" class="note-checkbox" data-note="SOL" checked> SOL</label>
+                <label><input type="checkbox" class="note-checkbox" data-note="LA" checked> LA</label>
+                <label><input type="checkbox" class="note-checkbox" data-note="SI" checked> SI</label>
+                <label><input type="checkbox" class="note-checkbox" data-note="DO'" checked> DO'</label>
+            </div>
+            <div id="result"></div>
+        </div>
+        <div id="secondaryZone">
+            <div class="section section-1">
+                <div id="score">Punts: 0</div>
+                <div id="timer">Temps: 60</div>
+            </div>
+            <div class="section section-2">
+                <img id="scoreImage" alt="BATERIA" src="image0.png">
+            </div>
+            <div class="section section-3">
+                <img id="resultImage" alt="BE/MAL" src="ditbe.png">
+            </div>
+            <div class="section section-4">
+                <button id="toggleSound" class="active">Error ON</button>
+                <button id="toggleImageSound" class="active">Notes ON</button>
+                <button id="startButton">Iniciar Joc</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioDo" src="do.mp3"></audio>
+    <audio id="audioRe" src="re.mp3"></audio>
+    <audio id="audioMi" src="mi.mp3"></audio>
+    <audio id="audioFa" src="fa.mp3"></audio>
+    <audio id="audioSol" src="sol.mp3"></audio>
+    <audio id="audioLa" src="la.mp3"></audio>
+    <audio id="audioSi" src="si.mp3"></audio>
+    <audio id="audioDo8" src="do8.mp3"></audio>
+    <audio id="audioCorrecto" src="correcto.mp3"></audio>
+    <audio id="audioIncorrecto" src="incorrecto.mp3"></audio>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const images = [
+                { src: 'notado.png', name: 'DO', audio: 'audioDo' },
+                { src: 'notare.png', name: 'RE', audio: 'audioRe' },
+                { src: 'notami.png', name: 'MI', audio: 'audioMi' },
+                { src: 'notafa.png', name: 'FA', audio: 'audioFa' },
+                { src: 'notasol.png', name: 'SOL', audio: 'audioSol' },
+                { src: 'notala.png', name: 'LA', audio: 'audioLa' },
+                { src: 'notasi.png', name: 'SI', audio: 'audioSi' },
+                { src: 'notado8.png', name: "DO'", audio: 'audioDo8' },
+            ];
+    
+            const resultImages = {
+                correct: 'ditbe.png',
+                incorrect: 'ditmal.png',
+            };
+    
+            const scoreImages = {
+                veryLow: 'image0.png',
+                low: 'image1.png',
+                mediumLow: 'image2.png',
+                medium: 'image3.png',
+                mediumHigh: 'image4.png',
+                high: 'image5.png',
+                veryHigh: 'image6.png',
+            };
+    
+            let score = 0;
+            let timeLeft = 60;
+            let timerInterval;
+            let soundEnabled = true;
+            let imageSoundEnabled = true;
+    
+            const scoreContainer = document.getElementById('score');
+            const timerContainer = document.getElementById('timer');
+            const imageContainer = document.getElementById('randomImage');
+            const optionsContainer = document.getElementById('optionsContainer');
+            const resultContainer = document.getElementById('result');
+            const resultImageContainer = document.getElementById('resultImage');
+            const scoreImageContainer = document.getElementById('scoreImage');
+            const toggleSoundButton = document.getElementById('toggleSound');
+            const toggleImageSoundButton = document.getElementById('toggleImageSound');
+            const startButton = document.getElementById('startButton');
+            const noteCheckboxes = document.querySelectorAll('.note-checkbox');
+            const noteSelection = document.getElementById('noteSelection');
+    
+            function disableNoteSelection() {
+                noteCheckboxes.forEach(checkbox => {
+                    checkbox.disabled = true;
+                });
+                noteSelection.classList.add('hidden');
+            }
+    
+            function enableNoteSelection() {
+                noteCheckboxes.forEach(checkbox => {
+                    checkbox.disabled = false;
+                });
+                noteSelection.classList.remove('hidden');
+            }
+    
+            toggleSoundButton.addEventListener('click', () => {
+                soundEnabled = !soundEnabled;
+                toggleSoundButton.classList.toggle('active', soundEnabled);
+                toggleSoundButton.textContent = `Error ${soundEnabled ? 'ON' : 'OFF'}`;
+            });
+    
+            toggleImageSoundButton.addEventListener('click', () => {
+                imageSoundEnabled = !imageSoundEnabled;
+                toggleImageSoundButton.classList.toggle('active', imageSoundEnabled);
+                toggleImageSoundButton.textContent = `Notes ${imageSoundEnabled ? 'ON' : 'OFF'}`;
+            });
+    
+            startButton.addEventListener('click', () => {
+                startButton.disabled = true;
+                disableNoteSelection(); // Desactivar la selección de notas al iniciar el juego
+                startGame();
+            });
+    
+            function startGame() {
+                score = 0;
+                timeLeft = 60;
+                updateScore();
+                updateTimer();
+                showNewQuestion();
+    
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                }
+    
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    updateTimer();
+    
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        endGame();
+                    }
+                }, 1000);
+            }
+    
+            function updateScore() {
+                scoreContainer.textContent = `Punts: ${score}`;
+                updateScoreImage();
+            }
+    
+            function updateScoreImage() {
+                let imgSrc = '';
+                if (score < 0) {
+                    imgSrc = scoreImages.veryLow;
+                } else if (score < 25) {
+                    imgSrc = scoreImages.low;
+                } else if (score >= 25 && score < 40) {
+                    imgSrc = scoreImages.mediumLow;
+                } else if (score >= 40 && score < 60) {
+                    imgSrc = scoreImages.medium;
+                } else if (score >= 60 && score < 80) {
+                    imgSrc = scoreImages.mediumHigh;
+                } else if (score >= 80 && score < 100) {
+                    imgSrc = scoreImages.high;
+                } else if (score >= 100) {
+                    imgSrc = scoreImages.veryHigh;
+                }
+                scoreImageContainer.src = imgSrc;
+            }
+    
+            function updateTimer() {
+                timerContainer.textContent = `Temps: ${timeLeft}`;
+            }
+    
+            function playAudio(audioId) {
+                const audioElement = document.getElementById(audioId);
+                if (audioElement) {
+                    audioElement.play().catch(error => {
+                        console.error("Audio playback failed:", error);
+                    });
+                }
+            }
+    
+            function showNewQuestion() {
+                const selectedNotes = getSelectedNotes();
+                const filteredImages = images.filter(image => selectedNotes.includes(image.name));
+                const randomIndex = Math.floor(Math.random() * filteredImages.length);
+                const randomImage = filteredImages[randomIndex];
+                imageContainer.src = randomImage.src;
+                if (imageSoundEnabled) {
+                    playAudio(randomImage.audio);
+                }
+    
+                optionsContainer.innerHTML = '';
+                filteredImages.forEach(image => {
+                    const button = document.createElement('button');
+                    button.textContent = image.name;
+                    button.addEventListener('click', () => handleAnswer(image.name, randomImage.name));
+                    optionsContainer.appendChild(button);
+                });
+            }
+    
+            function handleAnswer(selected, correct) {
+                if (selected === correct) {
+                    score += 1;
+                    resultContainer.textContent = '';
+                    resultImageContainer.src = resultImages.correct;
+                    playAudio('audioCorrecto');
+                } else {
+                    score -= 1;
+                    resultContainer.textContent = '';
+                    resultImageContainer.src = resultImages.incorrect;
+                    if (soundEnabled) {
+                        playAudio('audioIncorrecto');
+                    }
+                }
+                updateScore();
+                showNewQuestion();
+            }
+    
+            function getSelectedNotes() {
+                const checkboxes = document.querySelectorAll('.note-checkbox:checked');
+                return Array.from(checkboxes).map(checkbox => checkbox.dataset.note);
+            }
+    
+            function endGame() {
+                imageContainer.src = 'end.png';
+                resultContainer.textContent = `El nivell de bateria aconseguit és el: ${score} %`;
+                optionsContainer.innerHTML = '';
+                startButton.disabled = false;
+                enableNoteSelection(); // Volver a habilitar la selección de notas al finalizar el juego
+            }
+
+            // Mostrar las opciones antes de empezar
+            enableNoteSelection();
+        });
+    </script>
+</body>
+</html>
